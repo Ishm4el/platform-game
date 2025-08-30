@@ -3,8 +3,12 @@ import { Coin } from "./actors/Coin";
 import { Vec } from "./utility/Vec";
 import { Lava } from "./actors/Lava";
 
+type Actor = Player | Lava | Coin;
+type Actors = Array<Actor>;
+type TypeOfActors = typeof Player | typeof Lava | typeof Coin;
+
 interface LevelChars {
-  [key: string]: string | typeof Player | typeof Coin | typeof Lava;
+  [key: string]: string | TypeOfActors;
   ".": string;
   "#": string;
   "+": string;
@@ -58,4 +62,28 @@ class Level {
   }
 }
 
-export { Level };
+class State {
+  level: Level;
+  actors: Actors;
+  status: string;
+
+  constructor(level: Level, actors: Actors, status: string) {
+    this.level = level;
+    this.actors = actors;
+    this.status = status;
+  }
+
+  static start(level: Level) {
+    return new State(level, level.startActors, "playing");
+  }
+
+  get player() {
+    return this.actors.find((a) => a.type === "player");
+  }
+}
+
+// const simpleLevel = new Level(simpleLevelPlan);
+// console.log(`${simpleLevel.width} by ${simpleLevel.height}`)
+// 22 by 9
+
+export { Level, State };
