@@ -82,8 +82,7 @@ export default function Game({
     }
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const runAnimation = (frameFunc: any) => {
+  const runAnimation = (frameFunc: { (time: number): boolean; (arg0: number): boolean; }) => {
     function frame(time: number) {
       if (
         previousTimeRef.current !== null &&
