@@ -2,22 +2,7 @@ import { Player } from "./actors/Player";
 import { Coin } from "./actors/Coin";
 import { Vec } from "./utility/Vec";
 import { Lava } from "./actors/Lava";
-
-type Actor = Player | Lava | Coin;
-type Actors = Array<Actor>;
-type TypeOfActors = typeof Player | typeof Lava | typeof Coin;
-
-interface LevelChars {
-  [key: string]: string | TypeOfActors;
-  ".": string;
-  "#": string;
-  "+": string;
-  "@": typeof Player;
-  o: typeof Coin;
-  "=": typeof Lava;
-  "|": typeof Lava;
-  v: typeof Lava;
-}
+import { drawGrid, elt } from "./utility/helperFunctions";
 
 const levelChars: LevelChars = {
   ".": "empty",
@@ -86,4 +71,19 @@ class State {
 // console.log(`${simpleLevel.width} by ${simpleLevel.height}`)
 // 22 by 9
 
-export { Level, State };
+class DOMDisplay {
+  dom: HTMLElement;
+  actorLayer: null;
+
+  constructor(parent: HTMLElement, level: Level) {
+    this.dom = elt("div", { class: "game" }, drawGrid(level));
+    this.actorLayer = null;
+    parent.appendChild(this.dom);
+  }
+
+  clear() {
+    this.dom.remove();
+  }
+}
+
+export { State, DOMDisplay, type Level };
