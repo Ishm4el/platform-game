@@ -40,7 +40,7 @@ function DrawActors({ actors }: { actors: Actors }) {
   );
 }
 
-export default function GameDisplay() {
+export default function Game() {
   const gameDiv = useRef<HTMLDivElement>(null!);
   const [status, setStatus] = useState<"playing" | "lost" | "">("");
   const [level, setLevel] = useState<Level>(new Level(simpleLevelPlan));
