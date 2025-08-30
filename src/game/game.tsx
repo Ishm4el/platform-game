@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import Level from "./utility/Level";
 import type { Actor, Actors } from "./actors/Actors";
 import Player from "./actors/Player";
@@ -8,13 +8,15 @@ import { simpleLevelPlan } from "./levels/levels";
 function DrawGrid({ level }: { level: Level }) {
   return (
     <table className="background" style={{ width: `${level.width * SCALE}px` }}>
-      {level.rows.map((row: string[]) => (
-        <tr style={{ height: `${SCALE}px` }}>
-          {row.map((type: string) => (
-            <td className={type}></td>
-          ))}
-        </tr>
-      ))}
+      <tbody>
+        {level.rows.map((row: string[], index: number) => (
+          <tr style={{ height: `${SCALE}px` }} key={`row-${index}`}>
+            {row.map((type: string, index: number) => (
+              <td className={type} key={`row-${index}_column-${index}`}></td>
+            ))}
+          </tr>
+        ))}
+      </tbody>
     </table>
   );
 }
@@ -22,7 +24,7 @@ function DrawGrid({ level }: { level: Level }) {
 function DrawActors({ actors }: { actors: Actors }) {
   return (
     <div>
-      {actors.map((actor: Actor) => (
+      {actors.map((actor: Actor, index: number) => (
         <div
           className={`actor ${actor.type}`}
           style={{
@@ -31,6 +33,7 @@ function DrawActors({ actors }: { actors: Actors }) {
             left: `${actor.pos.x * SCALE}px`,
             top: `${actor.pos.y * SCALE}px`,
           }}
+          key={index}
         ></div>
       ))}
     </div>
@@ -42,8 +45,6 @@ export default function GameDisplay() {
   const [status, setStatus] = useState<"playing" | "lost" | "">("");
   const [level, setLevel] = useState<Level>(new Level(simpleLevelPlan));
   const [actors, setActors] = useState<Actors>(level.startActors);
-
-  console.log(level.startActors);
 
   const getPlayer = () => {
     const thePlayer = actors.find((a) => a.type === "player");
