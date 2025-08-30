@@ -4,6 +4,7 @@ export class Lava {
   pos: Vec;
   speed: Vec;
   reset: Vec | undefined;
+  size: Vec = new Vec(1, 1);
 
   constructor(pos: Vec, speed: Vec, reset?: Vec) {
     this.pos = pos;
