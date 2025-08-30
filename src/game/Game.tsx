@@ -4,6 +4,7 @@ import type { Actor, Actors } from "./actors/Actors";
 import Player from "./actors/Player";
 import { SCALE } from "./settings";
 import { simpleLevelPlan } from "./levels/levels";
+import State from "./utility/State";
 
 function DrawGrid({ level }: { level: Level }) {
   return (
@@ -42,16 +43,8 @@ function DrawActors({ actors }: { actors: Actors }) {
 
 export default function Game() {
   const gameDiv = useRef<HTMLDivElement>(null!);
-  const [status, setStatus] = useState<"playing" | "lost" | "">("");
   const [level, setLevel] = useState<Level>(new Level(simpleLevelPlan));
-  const [actors, setActors] = useState<Actors>(level.startActors);
-
-  const getPlayer = () => {
-    const thePlayer = actors.find((a) => a.type === "player");
-    if (thePlayer instanceof Player) {
-      return thePlayer;
-    } else throw new Error("Player was not found!");
-  };
+  const [gameState, setGameState] = useState<State>(State.start(level));
 
   const scrollPlayerIntoView = () => {
     const width = gameDiv.current.clientWidth;
@@ -64,7 +57,7 @@ export default function Game() {
     const top = gameDiv.current.scrollTop;
     const bottom = top + height;
 
-    const player: Player = getPlayer();
+    const player: Player = gameState.player;
     const center = player.pos.plus(player.size.times(0.5)).times(SCALE);
 
     if (center.x < left + margin) {
@@ -85,7 +78,7 @@ export default function Game() {
 
   return (
     <div className={`game ${status}`} ref={gameDiv}>
-      <DrawActors actors={actors} />
+      <DrawActors actors={gameState.actors} />
       <DrawGrid level={level} />
     </div>
   );

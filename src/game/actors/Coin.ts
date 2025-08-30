@@ -1,3 +1,4 @@
+import State from "../utility/State";
 import Vec from "../utility/Vec";
 
 export default class Coin {
@@ -12,12 +13,19 @@ export default class Coin {
     this.wobble = wobble;
   }
 
+  static create(pos: Vec) {
+    const basePos = pos.plus(new Vec(0.2, 0.1));
+    return new Coin(basePos, basePos, Math.random() * Math.PI * 2);
+  }
+
   get type() {
     return "coin";
   }
 
-  static create(pos: Vec) {
-    const basePos = pos.plus(new Vec(0.2, 0.1));
-    return new Coin(basePos, basePos, Math.random() * Math.PI * 2);
+  collide(state: State) {
+    const filtered = state.actors.filter((a) => a != this);
+    let status = state.status;
+    if (!filtered.some((a) => a.type == "coin")) status = "won";
+    return new State(state.level, filtered, status);
   }
 }

@@ -1,3 +1,5 @@
+import type Level from "../utility/Level";
+import State from "../utility/State";
 import Vec from "../utility/Vec";
 
 export default class Lava {
@@ -12,10 +14,6 @@ export default class Lava {
     this.reset = reset;
   }
 
-  get type() {
-    return "lava";
-  }
-
   static create(pos: Vec, ch: string) {
     if (ch === "=") {
       return new Lava(pos, new Vec(2, 0));
@@ -24,5 +22,13 @@ export default class Lava {
     } else if (ch == "v") {
       return new Lava(pos, new Vec(0, 3), pos);
     }
+  }
+
+  get type() {
+    return "lasva";
+  }
+
+  collide(state: State) {
+    return new State(state.level, state.actors, "lost");
   }
 }
