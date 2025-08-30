@@ -1,6 +1,6 @@
-import { Vec } from "../utility/Vec";
+import Vec from "../utility/Vec";
 
-export class Player {
+export default class Player {
   pos: Vec;
   speed: Vec;
   size: Vec = new Vec(0.8, 1.5);

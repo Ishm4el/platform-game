@@ -1,6 +1,6 @@
 import { Vec } from "../utility/Vec";
 
-export class Coin {
+export default class Coin {
   pos: Vec;
   basePos: Vec;
   wobble: number;

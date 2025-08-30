@@ -1,7 +1,6 @@
+import type { Actor, Actors } from "../actors/Actors";
 import type { Level } from "../gameLogic";
-
-// the scale the game will be in pixels
-const SCALE = 20;
+import { SCALE } from "../settings";
 
 export function elt(
   name: string,

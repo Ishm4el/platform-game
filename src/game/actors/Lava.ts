@@ -1,6 +1,6 @@
 import { Vec } from "../utility/Vec";
 
-export class Lava {
+export default class Lava {
   pos: Vec;
   speed: Vec;
   reset: Vec | undefined;

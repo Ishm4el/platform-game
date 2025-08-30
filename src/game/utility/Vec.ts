@@ -1,4 +1,4 @@
-export class Vec {
+export default class Vec {
   x: number;
   y: number;
 
@@ -11,7 +11,7 @@ export class Vec {
     return new Vec(this.x + other.x, this.y + other.y);
   }
 
-  time(factor: number) {
+  times(factor: number) {
     return new Vec(this.x * factor, this.y * factor);
   }
 }

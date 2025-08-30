@@ -1,51 +1,8 @@
-import { Player } from "./actors/Player";
-import { Coin } from "./actors/Coin";
-import { Vec } from "./utility/Vec";
-import { Lava } from "./actors/Lava";
-import { drawGrid, elt } from "./utility/helperFunctions";
-
-const levelChars: LevelChars = {
-  ".": "empty",
-  "#": "wall",
-  "+": "laval",
-  "@": Player,
-  o: Coin,
-  "=": Lava,
-  "|": Lava,
-  v: Lava,
-};
-
-// Stores a level
-class Level {
-  height: number;
-  width: number;
-  startActors: Array<Lava | Player | Coin>;
-  rows: Array<Array<string>>;
-
-  constructor(plan: string) {
-    const rows = plan
-      .trim()
-      .split("\n")
-      .map((l) => [...l]);
-    this.height = rows.length;
-    this.width = rows[0].length;
-    this.startActors = [];
-
-    this.rows = rows.map((rows, y): Array<string> => {
-      return rows.map((ch, x): string => {
-        let type = levelChars[ch];
-        if (typeof type !== "string") {
-          const pos = new Vec(x, y);
-          const createdType = type.create(pos, ch);
-          if (createdType !== undefined) this.startActors.push(createdType);
-          else throw new Error("createdType is 'undefined'");
-          type = "empty";
-        }
-        return type;
-      });
-    });
-  }
-}
+import Player from "./actors/Player";
+import { drawActors, drawGrid, elt } from "./utility/helperFunctions";
+import type { Actors } from "./actors/Actors";
+import Level from "./utility/Level";
+import { SCALE } from "./settings";
 
 class State {
   level: Level;
@@ -63,17 +20,50 @@ class State {
   }
 
   get player() {
-    return this.actors.find((a) => a.type === "player");
+    const thePlayer = this.actors.find((a) => a.type === "player");
+    if (thePlayer instanceof Player) {
+      return thePlayer;
+    } else throw new Error("Player was not found!");
   }
 }
 
-// const simpleLevel = new Level(simpleLevelPlan);
-// console.log(`${simpleLevel.width} by ${simpleLevel.height}`)
-// 22 by 9
-
 class DOMDisplay {
   dom: HTMLElement;
-  actorLayer: null;
+  actorLayer: HTMLElement | null = null;
+
+  scrollPlayerIntoView = (state: State) => {
+    const width = this.dom.clientWidth;
+    const height = this.dom.clientHeight;
+    const margin = width / 3;
+
+    // The viewport
+    const left = this.dom.scrollLeft;
+    const right = left + width;
+    const top = this.dom.scrollTop;
+    const bottom = top + height;
+
+    const player: Player = state.player;
+    const center = player.pos.plus(player.size.times(0.5)).times(SCALE);
+
+    if (center.x < left + margin) {
+      this.dom.scrollLeft = center.x - margin;
+    } else if (center.x > right - margin) {
+      this.dom.scrollLeft = center.x + margin - width;
+    }
+    if (center.y < top + margin) {
+      this.dom.scrollTop = center.y - margin;
+    } else if (center.y > bottom - margin) {
+      this.dom.scrollTop = center.y + margin - height;
+    }
+  };
+
+  syncState = (state: State) => {
+    if (this.actorLayer) this.actorLayer.remove();
+    this.actorLayer = drawActors(state.actors);
+    this.dom.appendChild(this.actorLayer);
+    this.dom.className = `game ${state.status}`;
+    this.scrollPlayerIntoView(state);
+  };
 
   constructor(parent: HTMLElement, level: Level) {
     this.dom = elt("div", { class: "game" }, drawGrid(level));
@@ -86,4 +76,4 @@ class DOMDisplay {
   }
 }
 
-export { State, DOMDisplay, type Level };
+export { DOMDisplay, Level, State };
