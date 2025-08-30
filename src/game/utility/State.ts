@@ -1,6 +1,8 @@
 import Level from "./Level";
 import type { Actors, Actor } from "../actors/Actors";
 import Player from "../actors/Player";
+import Coin from "../actors/Coin";
+import Lava from "../actors/Lava";
 
 export default class State {
   level: Level;
@@ -48,8 +50,10 @@ export default class State {
         !(actor instanceof Player) &&
         this.overlap(actor, player)
       ) {
-        newState = actor.collide(newState);
+        if (actor instanceof Coin) newState = actor.collide(newState);
+        if (actor instanceof Lava) newState = actor.collide(newState);
       }
     }
+    return newState;
   }
 }

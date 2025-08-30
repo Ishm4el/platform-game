@@ -2,7 +2,7 @@ import { useLayoutEffect, useRef, useState } from "react";
 import Level from "./utility/Level";
 import type { Actor, Actors } from "./actors/Actors";
 import Player from "./actors/Player";
-import { SCALE } from "./settings";
+import { arrowKeys, SCALE } from "./settings";
 import { simpleLevelPlan } from "./levels/levels";
 import State from "./utility/State";
 
@@ -43,8 +43,11 @@ function DrawActors({ actors }: { actors: Actors }) {
 
 export default function Game() {
   const gameDiv = useRef<HTMLDivElement>(null!);
-  const [level, setLevel] = useState<Level>(new Level(simpleLevelPlan));
+  const [level,] = useState<Level>(new Level(simpleLevelPlan));
   const [gameState, setGameState] = useState<State>(State.start(level));
+
+  const requestRef = useRef<number>(null);
+  const previousTimeRef = useRef<number>(null);
 
   const scrollPlayerIntoView = () => {
     const width = gameDiv.current.clientWidth;
@@ -72,12 +75,49 @@ export default function Game() {
     }
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const runAnimation = (frameFunc: any) => {
+    function frame(time: number) {
+      if (
+        previousTimeRef.current !== null &&
+        typeof previousTimeRef.current === "number"
+      ) {
+        const timeStep = Math.min(time - previousTimeRef.current, 100) / 1000;
+        if (frameFunc(timeStep) == false) return;
+      }
+      previousTimeRef.current = time;
+      requestRef.current = requestAnimationFrame(frame);
+    }
+    requestRef.current = requestAnimationFrame(frame);
+  };
+
   useLayoutEffect(() => {
-    scrollPlayerIntoView();
+    const runLevel = () => {
+      return new Promise((resolve) => {
+        runAnimation((time: number) => {
+          let ending = 1;
+          setGameState(() => gameState.update(time, arrowKeys));
+          scrollPlayerIntoView();
+          // would syncDom here
+          if (gameState.status === "playing") return true;
+          else if (ending > 0) {
+            ending -= time;
+            return true;
+          } else {
+            resolve(gameState.status);
+            return false;
+          }
+        });
+      });
+    };
+    runLevel();
+    // requestRef.current = requestAnimationFrame(runLevel);
+    return () => cancelAnimationFrame(requestRef.current!);
+    // runLevel();
   });
 
   return (
-    <div className={`game ${status}`} ref={gameDiv}>
+    <div className={`game ${gameState.status}`} ref={gameDiv}>
       <DrawActors actors={gameState.actors} />
       <DrawGrid level={level} />
     </div>
