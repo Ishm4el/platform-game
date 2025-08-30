@@ -1,4 +1,4 @@
-import { Vec } from "../utility/Vec";
+import Vec from "../utility/Vec";
 
 export default class Coin {
   pos: Vec;
