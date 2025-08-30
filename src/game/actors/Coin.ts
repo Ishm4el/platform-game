@@ -2,10 +2,12 @@ import State from "../utility/State";
 import Vec from "../utility/Vec";
 
 export default class Coin {
+  private readonly wobbleSpeed = 8;
+  private readonly wobbleDist = 0.07;
+  readonly size = new Vec(0.6, 0.6);
   pos: Vec;
   basePos: Vec;
   wobble: number;
-  size = new Vec(0.6, 0.6);
 
   constructor(pos: Vec, basePos: Vec, wobble: number) {
     this.pos = pos;
@@ -27,5 +29,15 @@ export default class Coin {
     let status = state.status;
     if (!filtered.some((a) => a.type == "coin")) status = "won";
     return new State(state.level, filtered, status);
+  }
+
+  update(time: number) {
+    const wobble = this.wobble + time * this.wobbleSpeed;
+    const wobblePos = Math.sin(wobble) * this.wobbleDist;
+    return new Coin(
+      this.basePos.plus(new Vec(0, wobblePos)),
+      this.basePos,
+      wobble
+    );
   }
 }

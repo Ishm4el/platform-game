@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import Level from "./utility/Level";
 import type { Actor, Actors } from "./actors/Actors";
 import Player from "./actors/Player";

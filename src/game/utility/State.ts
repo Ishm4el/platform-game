@@ -32,7 +32,7 @@ export default class State {
     );
   }
 
-  update(time: number, keys) {
+  update(time: number, keys: { [key: string]: string }) {
     const actors = this.actors.map((actor) => actor.update(time, this, keys));
     let newState = new State(this.level, actors, this.status);
 
@@ -43,7 +43,11 @@ export default class State {
       return new State(this.level, actors, "lost");
 
     for (const actor of actors) {
-      if (actor != player && this.overlap(actor, player)) {
+      if (
+        actor != player &&
+        !(actor instanceof Player) &&
+        this.overlap(actor, player)
+      ) {
         newState = actor.collide(newState);
       }
     }
