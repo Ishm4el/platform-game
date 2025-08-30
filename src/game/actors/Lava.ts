@@ -24,7 +24,7 @@ export default class Lava {
   }
 
   get type() {
-    return "lasva";
+    return "lava";
   }
 
   collide(state: State) {

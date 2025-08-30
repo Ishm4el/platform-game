@@ -43,7 +43,7 @@ function DrawActors({ actors }: { actors: Actors }) {
 
 export default function Game() {
   const gameDiv = useRef<HTMLDivElement>(null!);
-  const [level,] = useState<Level>(new Level(simpleLevelPlan));
+  const [level] = useState<Level>(new Level(simpleLevelPlan));
   const [gameState, setGameState] = useState<State>(State.start(level));
 
   const requestRef = useRef<number>(null);
@@ -110,6 +110,9 @@ export default function Game() {
         });
       });
     };
+
+    // if (gameState.status === "won") alert("You won!");
+
     runLevel();
     // requestRef.current = requestAnimationFrame(runLevel);
     return () => cancelAnimationFrame(requestRef.current!);
