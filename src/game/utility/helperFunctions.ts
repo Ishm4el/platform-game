@@ -47,7 +47,7 @@ export function drawActors(actors: Actors) {
       rect.style.width = `${actor.size.x * SCALE}px`;
       rect.style.height = `${actor.size.y * SCALE}px`;
       rect.style.left = `${actor.pos.x * SCALE}px`;
-      rect.style.right = `${actor.pos.y * SCALE}px`;
+      rect.style.top = `${actor.pos.y * SCALE}px`;
       return rect;
     })
   );
