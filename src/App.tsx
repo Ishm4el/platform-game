@@ -1,8 +1,9 @@
 import "./App.css";
-import Game from "./game/Game";
+import { RunGame } from "./game/Game";
+import { EASY_LEVELS } from "./game/levels/levels";
 
 function App() {
-  return <Game />;
+  return <RunGame plans={EASY_LEVELS} />;
 }
 
 export default App;

@@ -1,9 +1,8 @@
-import { useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import Level from "./utility/Level";
 import type { Actor, Actors } from "./actors/Actors";
 import Player from "./actors/Player";
 import { arrowKeys, SCALE } from "./settings";
-import { simpleLevelPlan } from "./levels/levels";
 import State from "./utility/State";
 
 function DrawGrid({ level }: { level: Level }) {
@@ -41,9 +40,17 @@ function DrawActors({ actors }: { actors: Actors }) {
   );
 }
 
-export default function Game() {
+export default function Game({
+  aLevel,
+  advance,
+  destroy,
+}: {
+  aLevel: string;
+  advance: React.Dispatch<React.SetStateAction<number>>;
+  destroy: React.Dispatch<React.SetStateAction<boolean>>;
+}) {
   const gameDiv = useRef<HTMLDivElement>(null!);
-  const [level] = useState<Level>(new Level(simpleLevelPlan));
+  const [level] = useState<Level>(new Level(aLevel));
   const [gameState, setGameState] = useState<State>(State.start(level));
 
   const requestRef = useRef<number>(null);
@@ -96,27 +103,40 @@ export default function Game() {
       return new Promise((resolve) => {
         runAnimation((time: number) => {
           let ending = 1;
-          setGameState(() => gameState.update(time, arrowKeys));
+          // setGameState(() => gameState.update(time, arrowKeys));
+          const newGameState = gameState.update(time, arrowKeys);
+          setGameState(newGameState);
           scrollPlayerIntoView();
           // would syncDom here
-          if (gameState.status === "playing") return true;
-          else if (ending > 0) {
+          if (newGameState.status === "playing") return true;
+          if (newGameState.status === "lost") {
+            console.log("lost!");
+            resolve(newGameState.status);
+            return false;
+          }
+          if (newGameState.status === "won") {
+            resolve(newGameState.status);
+            return false;
+          } else if (ending > 0) {
             ending -= time;
             return true;
           } else {
-            resolve(gameState.status);
+            resolve(newGameState.status);
             return false;
           }
         });
       });
     };
 
-    // if (gameState.status === "won") alert("You won!");
+    // runLevel()
+    async function runnerRunLevel() {
+      await runLevel();
+      if (gameState.status === "won") advance((prev) => prev + 1);
+      else if (gameState.status === "lost") destroy(true);
+    }
 
-    runLevel();
-    // requestRef.current = requestAnimationFrame(runLevel);
+    runnerRunLevel();
     return () => cancelAnimationFrame(requestRef.current!);
-    // runLevel();
   });
 
   return (
@@ -124,5 +144,36 @@ export default function Game() {
       <DrawActors actors={gameState.actors} />
       <DrawGrid level={level} />
     </div>
+  );
+}
+
+export function RunGame({ plans }: { plans: string[] }) {
+  const [stage, setStage] = useState(0);
+  const [level, setLevel] = useState(plans[stage]);
+  const [tempDestroy, setTempDestroy] = useState(false);
+
+  console.log(level);
+
+  useEffect(() => {
+    if (tempDestroy !== false) setTempDestroy(false);
+  }, [tempDestroy]);
+
+  useEffect(() => {
+    if (stage > plans.length) {
+      alert("Reached END!");
+    }
+    setTempDestroy(true);
+    setLevel(() => plans[stage]);
+  }, [stage]);
+
+  return (
+    <>
+      {tempDestroy ? (
+        <></>
+      ) : (
+        <Game aLevel={level} advance={setStage} destroy={setTempDestroy} />
+      )}
+      {stage > plans.length ? <h1>END!</h1> : <></>}
+    </>
   );
 }
